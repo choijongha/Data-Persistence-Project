@@ -700,7 +700,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 978456287}
+  bestScoreText: {fileID: 1064665241}
   playerName: 
+  bestPlayerNameAndScore: 
 --- !u!4 &734875891
 Transform:
   m_ObjectHideFlags: 0

@@ -24,11 +24,6 @@ public class MainManager : MonoBehaviour
     private bool m_GameOver = false;
 
     private int m_BestScore;
-    private string saveName;
-    private void Awake()
-    {
-        
-    }
     // Start is called before the first frame update
     void Start()
     {
@@ -46,7 +41,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
-        
+        StartMenuUI.saveScript.FindGameManager();
+        displayPlayerName.text = BestScoreText();
     }
 
     private void Update()
@@ -72,7 +68,6 @@ public class MainManager : MonoBehaviour
             }
         }
     }
-
     void AddPoint(int point)
     {
         m_Points += point;
@@ -83,22 +78,33 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
-        displayPlayerName.text = "Score : " + StartMenuUI.saveScript.playerName;
-        //SaveBestScore();
+
+        StartMenuUI.saveScript.LoadName();
+        SaveBestScore();
+        displayPlayerName.text = BestScoreText();
+        
     }
-    /*public void SaveBestScore()
+    public void SaveBestScore()
     {
         if (m_Points >= LoadBestScore())
         {
-            Debug.Log("save");
             m_BestScore = m_Points;
             PlayerPrefs.SetInt("best score", m_BestScore);
+            PlayerPrefs.SetString("best name", StartMenuUI.saveScript.playerName);
         }
+
     }
     public int LoadBestScore()
     {
         return PlayerPrefs.GetInt("best score");
-        
-    }*/
-
+    }
+    public string LoadBestScoreName()
+    {
+        return PlayerPrefs.GetString("best name");
+    }
+    public string BestScoreText()
+    {
+        string bestScoreText =  "Score : " + LoadBestScoreName() + " : " + LoadBestScore();
+        return bestScoreText;
+    }
 }

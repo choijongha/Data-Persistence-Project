@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System.IO;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -9,9 +10,13 @@ using UnityEditor;
 public class StartMenuUI : MonoBehaviour
 {
     public static StartMenuUI saveScript;
-    public TMP_InputField inputField;
+
+    [SerializeField] TMP_InputField inputField;
+    [SerializeField] TextMeshProUGUI bestScoreText;
 
     public string playerName;
+    public string bestPlayerNameAndScore;
+    private GameObject gameManager;
 
     private void Awake()
     {
@@ -24,19 +29,78 @@ public class StartMenuUI : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
 
-    public void StartNew()
+        LoadNameValueChange();
+
+    }
+    private void Start()
+    {
+        if(bestPlayerNameAndScore != null)
+        {
+            LoadName();
+            bestScoreText.text = bestPlayerNameAndScore;
+        }
+    }
+    public void FindGameManager()
+    {
+        gameManager = GameObject.Find("MainManager");
+        if (gameManager != null)
+        {
+            MainManager gameManagerScript = gameManager.GetComponent<MainManager>();
+            bestPlayerNameAndScore = gameManagerScript.BestScoreText();
+            SaveName();
+        }
+    }
+    void StartNew()
     {
         playerName = inputField.text;
+        SaveName();
         SceneManager.LoadScene(1);
     }
-    public void Exit()
+    void Exit()
     {
 #if UNITY_EDITOR
         EditorApplication.ExitPlaymode();
 #else
         Application.Quit();
 #endif
+    }
+    void LoadNameValueChange()
+    {
+        LoadName();
+        inputField.text = playerName;
+        //bestScoreText.text = MainManager.mainManager.BestScoreText();
+    }
+    void LoadBestScore()
+    {
+        bestScoreText.text = "Best Score : " + playerName;
+    }
+    [System.Serializable]
+    class SaveData
+    {
+        public string playerName;
+        public string bestPlayerNameAndScore;
+    }
+    public void SaveName()
+    {
+        SaveData data = new SaveData();
+        data.playerName = playerName;
+        data.bestPlayerNameAndScore = bestPlayerNameAndScore;
+
+        string json = JsonUtility.ToJson(data);
+
+        File.WriteAllText(Application.persistentDataPath + "/savejson.json", json);
+    }
+    public void LoadName()
+    {
+        string path = Application.persistentDataPath + "/savejson.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            playerName = data.playerName;
+            bestPlayerNameAndScore = data.bestPlayerNameAndScore;
+        }
     }
 }
